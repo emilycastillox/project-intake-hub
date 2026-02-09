@@ -1,0 +1,58 @@
+import { getAllRequests } from "@/lib/store";
+import { AppHeader } from "@/components/app-header";
+import { RequestTable } from "@/components/request-table";
+import { StatusBadge } from "@/components/status-badge";
+import type { RequestStatus } from "@/lib/types";
+
+const statuses: RequestStatus[] = [
+  "new",
+  "under_review",
+  "accepted",
+  "deferred",
+  "rejected",
+];
+
+export default function DashboardPage() {
+  const requests = getAllRequests();
+
+  const counts = statuses.reduce(
+    (acc, s) => {
+      acc[s] = requests.filter((r) => r.status === s).length;
+      return acc;
+    },
+    {} as Record<RequestStatus, number>,
+  );
+
+  return (
+    <div className="min-h-screen">
+      <AppHeader />
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-balance">
+            Intake Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Review and triage incoming work requests.
+          </p>
+        </div>
+
+        {/* Status summary */}
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          {statuses.map((s) => (
+            <div key={s} className="flex items-center gap-1.5">
+              <StatusBadge status={s} />
+              <span className="text-sm font-medium tabular-nums text-foreground">
+                {counts[s]}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Request list */}
+        <div className="mt-6">
+          <RequestTable requests={requests} />
+        </div>
+      </main>
+    </div>
+  );
+}
