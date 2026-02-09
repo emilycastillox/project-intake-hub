@@ -1,18 +1,20 @@
 "use client";
 
-import type { Ticket, BoardColumn } from "@/lib/types";
-import { UrgencyIndicator } from "@/components/urgency-indicator";
+import React from "react";
+import type { Ticket } from "@/types";
+import { UrgencyIndicator } from "@/components/UrgencyIndicator/UrgencyIndicator";
 import { Card, CardContent } from "@/components/ui/card";
 import { User } from "lucide-react";
 import Link from "next/link";
 
-export function TicketCard({
-  ticket,
-  onDragStart,
-}: {
+interface Props {
   ticket: Ticket;
   onDragStart: (ticketId: string) => void;
-}) {
+}
+
+const TicketCard: React.FC<Props> = (props) => {
+  const { ticket, onDragStart } = props;
+
   return (
     <Card
       draggable
@@ -46,4 +48,6 @@ export function TicketCard({
       </CardContent>
     </Card>
   );
-}
+};
+
+export { TicketCard };

@@ -1,8 +1,13 @@
+import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Inbox, Plus, Kanban } from "lucide-react";
 
-export function AppHeader() {
+interface Props {}
+
+const AppHeader: React.FC<Props> = (props) => {
+  const {} = props;
+
   return (
     <header className="sticky top-0 z-30 border-b bg-card">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
@@ -35,4 +40,6 @@ export function AppHeader() {
       </div>
     </header>
   );
-}
+};
+
+export { AppHeader };

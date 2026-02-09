@@ -1,12 +1,11 @@
 import { notFound } from "next/navigation";
 import { getRequestById, getAllProjects, getTicketByIntakeId } from "@/lib/store";
-import { AppHeader } from "@/components/app-header";
-import { StatusBadge } from "@/components/status-badge";
-import { UrgencyIndicator } from "@/components/urgency-indicator";
-import { ReviewPanel } from "@/components/review-panel";
-import { AddToProjectDialog } from "@/components/add-to-project-dialog";
+import { AppHeader } from "@/components/AppHeader/AppHeader";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { UrgencyIndicator } from "@/components/UrgencyIndicator/UrgencyIndicator";
+import { ReviewPanel } from "@/components/ReviewPanel/ReviewPanel";
+import { AddToProjectDialog } from "@/components/AddToProjectDialog/AddToProjectDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
@@ -28,11 +27,12 @@ function formatDateTime(iso: string) {
   });
 }
 
-export default async function RequestDetailPage({
-  params,
-}: {
+interface Props {
   params: Promise<{ id: string }>;
-}) {
+}
+
+export default async function RequestDetailPage(props: Props) {
+  const { params } = props;
   const { id } = await params;
   const request = getRequestById(id);
 
@@ -44,7 +44,6 @@ export default async function RequestDetailPage({
     request.status === "new" || request.status === "under_review";
   const isAccepted = request.status === "accepted";
 
-  // Check if already converted to a ticket
   const existingTicket = isAccepted ? getTicketByIntakeId(request.id) : null;
   const activeProjects = isAccepted
     ? getAllProjects().filter((p) => !p.archived)
@@ -63,7 +62,6 @@ export default async function RequestDetailPage({
         </Link>
 
         <div className="flex flex-col gap-6">
-          {/* Header */}
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono text-sm text-muted-foreground">
@@ -75,7 +73,6 @@ export default async function RequestDetailPage({
               {request.title}
             </h1>
 
-            {/* Project actions for accepted requests */}
             {isAccepted && (
               <div className="mt-1">
                 {existingTicket ? (
@@ -96,7 +93,6 @@ export default async function RequestDetailPage({
             )}
           </div>
 
-          {/* Details */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Request Details</CardTitle>
@@ -148,7 +144,6 @@ export default async function RequestDetailPage({
             </CardContent>
           </Card>
 
-          {/* Review note if exists */}
           {request.reviewNote && (
             <Card>
               <CardHeader>
@@ -165,7 +160,6 @@ export default async function RequestDetailPage({
             </Card>
           )}
 
-          {/* Triage panel */}
           {canReview && <ReviewPanel requestId={request.id} />}
         </div>
       </main>

@@ -7,7 +7,7 @@ import type {
   Project,
   Ticket,
   BoardColumn,
-} from "./types";
+} from "@/types";
 
 // ---- In-memory stores ---- resets on server restart.
 

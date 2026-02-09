@@ -1,21 +1,21 @@
 "use client";
 
-import { useActionState } from "react";
+import React, { useActionState } from "react";
 import { assignTicketAction } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User } from "lucide-react";
 
-export function AssignForm({
-  ticketId,
-  projectId,
-  currentAssignee,
-}: {
+interface Props {
   ticketId: string;
   projectId: string;
   currentAssignee?: string;
-}) {
+}
+
+const AssignForm: React.FC<Props> = (props) => {
+  const { ticketId, projectId, currentAssignee } = props;
+
   const [, formAction, isPending] = useActionState(
     async (_prev: null, formData: FormData) => {
       const assignee = formData.get("assignee") as string;
@@ -47,4 +47,6 @@ export function AssignForm({
       </Button>
     </form>
   );
-}
+};
+
+export { AssignForm };

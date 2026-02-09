@@ -1,5 +1,6 @@
-import type { Urgency } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import React from "react";
+import type { Urgency } from "@/types";
+import { cn } from "@/utils";
 
 const config: Record<Urgency, { label: string; className: string }> = {
   low: { label: "Low", className: "text-muted-foreground" },
@@ -8,7 +9,15 @@ const config: Record<Urgency, { label: string; className: string }> = {
   critical: { label: "Critical", className: "text-destructive font-semibold" },
 };
 
-export function UrgencyIndicator({ urgency }: { urgency: Urgency }) {
-  const { label, className } = config[urgency];
-  return <span className={cn("text-sm", className)}>{label}</span>;
+interface Props {
+  urgency: Urgency;
 }
+
+const UrgencyIndicator: React.FC<Props> = (props) => {
+  const { urgency } = props;
+  const { label, className } = config[urgency];
+
+  return <span className={cn("text-sm", className)}>{label}</span>;
+};
+
+export { UrgencyIndicator };

@@ -1,16 +1,17 @@
 import { notFound } from "next/navigation";
 import { getProjectById, getTicketsByProject } from "@/lib/store";
-import { AppHeader } from "@/components/app-header";
-import { ProjectBoard } from "@/components/project-board";
+import { AppHeader } from "@/components/AppHeader/AppHeader";
+import { ProjectBoard } from "@/components/ProjectBoard/ProjectBoard";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Archive } from "lucide-react";
 import Link from "next/link";
 
-export default async function ProjectBoardPage({
-  params,
-}: {
+interface Props {
   params: Promise<{ id: string }>;
-}) {
+}
+
+export default async function ProjectBoardPage(props: Props) {
+  const { params } = props;
   const { id } = await params;
   const project = getProjectById(id);
 

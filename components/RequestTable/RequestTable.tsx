@@ -1,7 +1,8 @@
+import React from "react";
 import Link from "next/link";
-import type { IntakeRequest } from "@/lib/types";
-import { StatusBadge } from "@/components/status-badge";
-import { UrgencyIndicator } from "@/components/urgency-indicator";
+import type { IntakeRequest } from "@/types";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { UrgencyIndicator } from "@/components/UrgencyIndicator/UrgencyIndicator";
 import {
   Table,
   TableBody,
@@ -26,7 +27,13 @@ const impactLabels: Record<string, string> = {
   other: "Other",
 };
 
-export function RequestTable({ requests }: { requests: IntakeRequest[] }) {
+interface Props {
+  requests: IntakeRequest[];
+}
+
+const RequestTable: React.FC<Props> = (props) => {
+  const { requests } = props;
+
   if (requests.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
@@ -86,4 +93,6 @@ export function RequestTable({ requests }: { requests: IntakeRequest[] }) {
       </Table>
     </div>
   );
-}
+};
+
+export { RequestTable };

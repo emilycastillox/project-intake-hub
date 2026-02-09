@@ -1,5 +1,6 @@
+import React from "react";
 import { getAllProjects, getTicketCountByProject } from "@/lib/store";
-import { AppHeader } from "@/components/app-header";
+import { AppHeader } from "@/components/AppHeader/AppHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Kanban, Archive } from "lucide-react";
@@ -13,7 +14,11 @@ function formatDate(iso: string) {
   });
 }
 
-export default function ProjectsPage() {
+interface Props {}
+
+const ProjectsPage: React.FC<Props> = (props) => {
+  const {} = props;
+
   const projects = getAllProjects();
 
   return (
@@ -93,4 +98,6 @@ export default function ProjectsPage() {
       </main>
     </div>
   );
-}
+};
+
+export default ProjectsPage;

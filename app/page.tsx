@@ -1,8 +1,9 @@
+import React from "react";
 import { getAllRequests } from "@/lib/store";
-import { AppHeader } from "@/components/app-header";
-import { RequestTable } from "@/components/request-table";
-import { StatusBadge } from "@/components/status-badge";
-import type { RequestStatus } from "@/lib/types";
+import { AppHeader } from "@/components/AppHeader/AppHeader";
+import { RequestTable } from "@/components/RequestTable/RequestTable";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import type { RequestStatus } from "@/types";
 
 const statuses: RequestStatus[] = [
   "new",
@@ -12,7 +13,11 @@ const statuses: RequestStatus[] = [
   "rejected",
 ];
 
-export default function DashboardPage() {
+interface Props {}
+
+const DashboardPage: React.FC<Props> = (props) => {
+  const {} = props;
+
   const requests = getAllRequests();
 
   const counts = statuses.reduce(
@@ -55,4 +60,6 @@ export default function DashboardPage() {
       </main>
     </div>
   );
-}
+};
+
+export default DashboardPage;

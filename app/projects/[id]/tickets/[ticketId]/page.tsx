@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { getTicketById, getProjectById, getRequestById } from "@/lib/store";
-import { BOARD_COLUMNS } from "@/lib/types";
-import { AppHeader } from "@/components/app-header";
-import { UrgencyIndicator } from "@/components/urgency-indicator";
-import { AssignForm } from "@/components/assign-form";
-import { RequirementsList } from "@/components/requirements-list";
+import { BOARD_COLUMNS } from "@/types";
+import { AppHeader } from "@/components/AppHeader/AppHeader";
+import { UrgencyIndicator } from "@/components/UrgencyIndicator/UrgencyIndicator";
+import { AssignForm } from "@/components/AssignForm/AssignForm";
+import { RequirementsList } from "@/components/RequirementsList/RequirementsList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, FileText } from "lucide-react";
@@ -32,11 +32,12 @@ function formatDateTime(iso: string) {
   });
 }
 
-export default async function TicketDetailPage({
-  params,
-}: {
+interface Props {
   params: Promise<{ id: string; ticketId: string }>;
-}) {
+}
+
+export default async function TicketDetailPage(props: Props) {
+  const { params } = props;
   const { id: projectId, ticketId } = await params;
   const ticket = getTicketById(ticketId);
   const project = getProjectById(projectId);
@@ -60,7 +61,6 @@ export default async function TicketDetailPage({
         </Link>
 
         <div className="flex flex-col gap-6">
-          {/* Header */}
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono text-sm text-muted-foreground">
@@ -73,7 +73,6 @@ export default async function TicketDetailPage({
             </h1>
           </div>
 
-          {/* Ticket details */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Ticket Details</CardTitle>
@@ -114,7 +113,6 @@ export default async function TicketDetailPage({
                 </div>
               </dl>
 
-              {/* Assignee */}
               <div className="mt-6 border-t pt-4">
                 <AssignForm
                   ticketId={ticket.id}
@@ -125,14 +123,12 @@ export default async function TicketDetailPage({
             </CardContent>
           </Card>
 
-          {/* Requirements / Success Criteria */}
           <RequirementsList
             ticketId={ticket.id}
             projectId={projectId}
             requirements={ticket.requirements}
           />
 
-          {/* Original intake context (read-only) */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">

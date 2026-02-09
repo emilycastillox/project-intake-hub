@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import type { Ticket, BoardColumn as BoardColumnType } from "@/lib/types";
-import { TicketCard } from "./ticket-card";
-import { cn } from "@/lib/utils";
+import React, { useState } from "react";
+import type { Ticket, BoardColumn as BoardColumnType } from "@/types";
+import { TicketCard } from "@/components/TicketCard/TicketCard";
+import { cn } from "@/utils";
 
 const columnColors: Record<BoardColumnType, string> = {
   backlog: "bg-muted-foreground",
@@ -12,19 +12,17 @@ const columnColors: Record<BoardColumnType, string> = {
   done: "bg-[hsl(142,71%,40%)]",
 };
 
-export function BoardColumnComponent({
-  columnKey,
-  label,
-  tickets,
-  onDrop,
-  onDragStart,
-}: {
+interface Props {
   columnKey: BoardColumnType;
   label: string;
   tickets: Ticket[];
   onDrop: (ticketId: string, column: BoardColumnType) => void;
   onDragStart: (ticketId: string) => void;
-}) {
+}
+
+const BoardColumnComponent: React.FC<Props> = (props) => {
+  const { columnKey, label, tickets, onDrop, onDragStart } = props;
+
   const [isDragOver, setIsDragOver] = useState(false);
 
   return (
@@ -47,7 +45,6 @@ export function BoardColumnComponent({
         }
       }}
     >
-      {/* Column header */}
       <div className="flex items-center gap-2 px-3 py-2.5 border-b">
         <div
           className={cn(
@@ -61,7 +58,6 @@ export function BoardColumnComponent({
         </span>
       </div>
 
-      {/* Cards */}
       <div className="flex flex-col gap-2 p-2 min-h-[120px]">
         {tickets.map((ticket) => (
           <TicketCard
@@ -73,4 +69,6 @@ export function BoardColumnComponent({
       </div>
     </div>
   );
-}
+};
+
+export { BoardColumnComponent };

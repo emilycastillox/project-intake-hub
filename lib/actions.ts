@@ -13,7 +13,7 @@ import {
   toggleRequirement,
   removeRequirement,
 } from "./store";
-import type { ImpactArea, Urgency, ReviewAction, BoardColumn } from "./types";
+import type { ImpactArea, Urgency, ReviewAction, BoardColumn } from "@/types";
 
 export async function submitRequest(formData: FormData) {
   const title = formData.get("title") as string;

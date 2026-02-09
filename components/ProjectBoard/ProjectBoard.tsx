@@ -1,18 +1,19 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
-import type { Ticket, BoardColumn } from "@/lib/types";
-import { BOARD_COLUMNS } from "@/lib/types";
-import { BoardColumnComponent } from "./board-column";
+import React, { useOptimistic, useTransition } from "react";
+import type { Ticket, BoardColumn } from "@/types";
+import { BOARD_COLUMNS } from "@/types";
+import { BoardColumnComponent } from "@/components/BoardColumn/BoardColumn";
 import { moveTicketAction } from "@/lib/actions";
 
-export function ProjectBoard({
-  tickets: initialTickets,
-  projectId,
-}: {
+interface Props {
   tickets: Ticket[];
   projectId: string;
-}) {
+}
+
+const ProjectBoard: React.FC<Props> = (props) => {
+  const { tickets: initialTickets, projectId } = props;
+
   const [isPending, startTransition] = useTransition();
   const [tickets, setOptimisticTickets] = useOptimistic(
     initialTickets,
@@ -48,4 +49,6 @@ export function ProjectBoard({
       ))}
     </div>
   );
-}
+};
+
+export { ProjectBoard };

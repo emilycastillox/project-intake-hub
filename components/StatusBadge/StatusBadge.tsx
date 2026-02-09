@@ -1,6 +1,7 @@
+import React from "react";
 import { Badge } from "@/components/ui/badge";
-import type { RequestStatus } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import type { RequestStatus } from "@/types";
+import { cn } from "@/utils";
 
 const config: Record<
   RequestStatus,
@@ -28,9 +29,17 @@ const config: Record<
   },
 };
 
-export function StatusBadge({ status }: { status: RequestStatus }) {
+interface Props {
+  status: RequestStatus;
+}
+
+const StatusBadge: React.FC<Props> = (props) => {
+  const { status } = props;
   const { label, className } = config[status];
+
   return (
     <Badge className={cn("pointer-events-none", className)}>{label}</Badge>
   );
-}
+};
+
+export { StatusBadge };

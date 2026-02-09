@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import React, { useActionState } from "react";
 import { triageRequest } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,7 +35,13 @@ const actions = [
   },
 ] as const;
 
-export function ReviewPanel({ requestId }: { requestId: string }) {
+interface Props {
+  requestId: string;
+}
+
+const ReviewPanel: React.FC<Props> = (props) => {
+  const { requestId } = props;
+
   const [error, formAction, isPending] = useActionState(
     async (_prev: string | null, formData: FormData) => {
       try {
@@ -96,4 +102,6 @@ export function ReviewPanel({ requestId }: { requestId: string }) {
       </CardContent>
     </Card>
   );
-}
+};
+
+export { ReviewPanel };

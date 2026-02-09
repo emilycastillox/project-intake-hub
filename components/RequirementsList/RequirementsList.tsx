@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import type { Requirement } from "@/lib/types";
+import React, { useRef } from "react";
+import type { Requirement } from "@/types";
 import {
   addRequirementAction,
   toggleRequirementAction,
@@ -12,17 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ListChecks, Plus, X } from "lucide-react";
 
-interface RequirementsListProps {
+interface Props {
   ticketId: string;
   projectId: string;
   requirements: Requirement[];
 }
 
-export function RequirementsList({
-  ticketId,
-  projectId,
-  requirements,
-}: RequirementsListProps) {
+const RequirementsList: React.FC<Props> = (props) => {
+  const { ticketId, projectId, requirements } = props;
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const completedCount = requirements.filter((r) => r.completed).length;
@@ -68,7 +66,6 @@ export function RequirementsList({
         )}
       </CardHeader>
       <CardContent>
-        {/* Requirement items */}
         {totalCount > 0 ? (
           <ul className="flex flex-col gap-1.5">
             {requirements.map((req) => (
@@ -121,7 +118,6 @@ export function RequirementsList({
           </p>
         )}
 
-        {/* Add form */}
         <form action={handleAdd} className="mt-4 flex items-center gap-2">
           <Input
             ref={inputRef}
@@ -137,4 +133,6 @@ export function RequirementsList({
       </CardContent>
     </Card>
   );
-}
+};
+
+export { RequirementsList };

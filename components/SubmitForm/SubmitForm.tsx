@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import React, { useActionState } from "react";
 import { submitRequest } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,11 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 
-export function SubmitForm() {
+interface Props {}
+
+const SubmitForm: React.FC<Props> = (props) => {
+  const {} = props;
+
   const [error, action, isPending] = useActionState(
     async (_prev: string | null, formData: FormData) => {
       try {
@@ -111,4 +115,6 @@ export function SubmitForm() {
       </CardContent>
     </Card>
   );
-}
+};
+
+export { SubmitForm };

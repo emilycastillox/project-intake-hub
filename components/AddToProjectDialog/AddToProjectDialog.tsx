@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import React, { useState, useActionState } from "react";
 import { addToProjectAction } from "@/lib/actions";
-import type { Project } from "@/lib/types";
+import type { Project } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,13 +23,14 @@ import {
 } from "@/components/ui/select";
 import { FolderPlus } from "lucide-react";
 
-export function AddToProjectDialog({
-  intakeRequestId,
-  projects,
-}: {
+interface Props {
   intakeRequestId: string;
   projects: Project[];
-}) {
+}
+
+const AddToProjectDialog: React.FC<Props> = (props) => {
+  const { intakeRequestId, projects } = props;
+
   const [mode, setMode] = useState<"existing" | "new">(
     projects.length > 0 ? "existing" : "new",
   );
@@ -133,4 +134,6 @@ export function AddToProjectDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export { AddToProjectDialog };

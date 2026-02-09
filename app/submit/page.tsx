@@ -1,7 +1,12 @@
-import { AppHeader } from "@/components/app-header";
-import { SubmitForm } from "@/components/submit-form";
+import React from "react";
+import { AppHeader } from "@/components/AppHeader/AppHeader";
+import { SubmitForm } from "@/components/SubmitForm/SubmitForm";
 
-export default function SubmitPage() {
+interface Props {}
+
+const SubmitPage: React.FC<Props> = (props) => {
+  const {} = props;
+
   return (
     <div className="min-h-screen">
       <AppHeader />
@@ -20,4 +25,6 @@ export default function SubmitPage() {
       </main>
     </div>
   );
-}
+};
+
+export default SubmitPage;
