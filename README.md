@@ -101,8 +101,8 @@ So: **requirements + triage + project board + tickets**, in one app, with one fl
 4. **Run the app**
 
    ```bash
-   pnpm install
-   pnpm dev
+   npm install
+   npm run dev
    ```
 
    Open [http://localhost:3000](http://localhost:3000). You’ll see the Intake dashboard, with nav to **Intake**, **Projects**, and **New Request**. Use **Sign in** in the header when Clerk is configured.
