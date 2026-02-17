@@ -2,6 +2,8 @@
 
 A single flow to capture stakeholder requests, triage what’s feasible, and turn accepted work into tickets on a project board—all in one place.
 
+**Live site:** [project-intake-hub.vercel.app](https://project-intake-hub.vercel.app)
+
 ---
 
 ## Why this exists
