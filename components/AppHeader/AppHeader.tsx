@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Inbox, Plus, Kanban } from "lucide-react";
 
@@ -31,12 +34,24 @@ const AppHeader: React.FC<Props> = (props) => {
             </Button>
           </nav>
         </div>
-        <Button asChild size="sm">
-          <Link href="/submit">
-            <Plus className="mr-1.5 h-4 w-4" />
-            New Request
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm">
+            <Link href="/submit">
+              <Plus className="mr-1.5 h-4 w-4" />
+              New Request
+            </Link>
+          </Button>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button variant="outline" size="sm">
+                Sign in
+              </Button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+        </div>
       </div>
     </header>
   );

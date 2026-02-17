@@ -2,6 +2,7 @@ import React from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import ConvexClientProvider from "./ConvexClientProvider";
 import "./globals.css";
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -21,7 +22,9 @@ const RootLayout: React.FC<Props> = (props) => {
 
   return (
     <html lang="en">
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <ConvexClientProvider>{children}</ConvexClientProvider>
+      </body>
     </html>
   );
 };

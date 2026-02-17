@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useActionState } from "react";
-import { triageRequest } from "@/lib/actions";
+import React, { useState } from "react";
+import { useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -10,49 +13,59 @@ import { Check, Clock, X, HelpCircle } from "lucide-react";
 
 const actions = [
   {
-    value: "accept",
+    value: "accept" as const,
     label: "Accept",
     icon: Check,
     className: "bg-[hsl(142,71%,40%)] text-white hover:bg-[hsl(142,71%,35%)]",
   },
   {
-    value: "defer",
+    value: "defer" as const,
     label: "Defer",
     icon: Clock,
     className: "bg-muted text-foreground hover:bg-muted/80",
   },
   {
-    value: "reject",
+    value: "reject" as const,
     label: "Reject",
     icon: X,
     className: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
   },
   {
-    value: "clarify",
+    value: "clarify" as const,
     label: "Request Clarification",
     icon: HelpCircle,
     className: "bg-[hsl(38,92%,50%)] text-white hover:bg-[hsl(38,92%,45%)]",
   },
-] as const;
+];
 
 interface Props {
-  requestId: string;
+  requestId: Id<"intakeRequests">;
 }
 
 const ReviewPanel: React.FC<Props> = (props) => {
   const { requestId } = props;
+  const router = useRouter();
+  const triage = useMutation(api.requests.triage);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const [note, setNote] = useState("");
 
-  const [error, formAction, isPending] = useActionState(
-    async (_prev: string | null, formData: FormData) => {
-      try {
-        await triageRequest(formData);
-        return null;
-      } catch {
-        return "Failed to submit review. Please try again.";
-      }
-    },
-    null,
-  );
+  async function handleSubmit(action: "accept" | "defer" | "reject" | "clarify") {
+    setError(null);
+    setIsPending(true);
+    try {
+      await triage({
+        id: requestId,
+        action,
+        note: note.trim() || undefined,
+      });
+      router.refresh();
+    } catch {
+      setError("Failed to submit review. Please try again.");
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
     <Card>
@@ -60,9 +73,7 @@ const ReviewPanel: React.FC<Props> = (props) => {
         <CardTitle className="text-base">Triage This Request</CardTitle>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="flex flex-col gap-4">
-          <input type="hidden" name="id" value={requestId} />
-
+        <div className="flex flex-col gap-4">
           {error && (
             <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {error}
@@ -73,7 +84,8 @@ const ReviewPanel: React.FC<Props> = (props) => {
             <Label htmlFor="note">Internal Note (optional)</Label>
             <Textarea
               id="note"
-              name="note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
               placeholder="Add context for the team..."
               rows={3}
             />
@@ -85,12 +97,11 @@ const ReviewPanel: React.FC<Props> = (props) => {
               return (
                 <Button
                   key={a.value}
-                  type="submit"
-                  name="action"
-                  value={a.value}
+                  type="button"
                   disabled={isPending}
                   className={a.className}
                   size="sm"
+                  onClick={() => handleSubmit(a.value)}
                 >
                   <Icon className="mr-1.5 h-4 w-4" />
                   {a.label}
@@ -98,7 +109,7 @@ const ReviewPanel: React.FC<Props> = (props) => {
               );
             })}
           </div>
-        </form>
+        </div>
       </CardContent>
     </Card>
   );

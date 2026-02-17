@@ -1,6 +1,10 @@
+"use client";
+
 import React from "react";
-import { getAllProjects, getTicketCountByProject } from "@/lib/store";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader/AppHeader";
+import { CreateProjectDialog } from "@/components/CreateProjectDialog/CreateProjectDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Kanban, Archive } from "lucide-react";
@@ -19,19 +23,22 @@ interface Props {}
 const ProjectsPage: React.FC<Props> = (props) => {
   const {} = props;
 
-  const projects = getAllProjects();
+  const projects = useQuery(api.projects.listWithCounts) ?? [];
 
   return (
     <div className="min-h-screen">
       <AppHeader />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-balance">
-            Projects
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Track accepted work across lightweight project boards.
-          </p>
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-balance">
+              Projects
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Track accepted work across lightweight project boards.
+            </p>
+          </div>
+          <CreateProjectDialog />
         </div>
 
         {projects.length === 0 ? (
@@ -47,52 +54,49 @@ const ProjectsPage: React.FC<Props> = (props) => {
           </div>
         ) : (
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {projects.map((project) => {
-              const counts = getTicketCountByProject(project.id);
-              return (
-                <Link key={project.id} href={`/projects/${project.id}`}>
-                  <Card className="group transition-colors hover:border-primary/40">
-                    <CardContent className="flex flex-col gap-3 pt-5">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex flex-col gap-0.5">
-                          <h2 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                            {project.name}
-                          </h2>
-                          {project.description && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">
-                              {project.description}
-                            </p>
-                          )}
-                        </div>
-                        {project.archived && (
-                          <Badge
-                            variant="secondary"
-                            className="shrink-0 gap-1"
-                          >
-                            <Archive className="h-3 w-3" />
-                            Archived
-                          </Badge>
+            {projects.map((project) => (
+              <Link key={project.id} href={`/projects/${project.id}`}>
+                <Card className="group transition-colors hover:border-primary/40">
+                  <CardContent className="flex flex-col gap-3 pt-5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex flex-col gap-0.5">
+                        <h2 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {project.name}
+                        </h2>
+                        {project.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {project.description}
+                          </p>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      {project.archived && (
+                        <Badge
+                          variant="secondary"
+                          className="shrink-0 gap-1"
+                        >
+                          <Archive className="h-3 w-3" />
+                          Archived
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>
+                        {project.ticketCount}{" "}
+                        {project.ticketCount === 1 ? "ticket" : "tickets"}
+                      </span>
+                      {project.ticketCount > 0 && (
                         <span>
-                          {counts.total}{" "}
-                          {counts.total === 1 ? "ticket" : "tickets"}
+                          {project.doneCount} done
                         </span>
-                        {counts.total > 0 && (
-                          <span>
-                            {counts.done} done
-                          </span>
-                        )}
-                        <span className="ml-auto">
-                          Created {formatDate(project.createdAt)}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
+                      )}
+                      <span className="ml-auto">
+                        Created {formatDate(project.createdAt)}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
         )}
       </main>

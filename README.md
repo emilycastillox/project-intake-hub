@@ -69,23 +69,72 @@ So: **requirements + triage + project board + tickets**, in one app, with one fl
 - **Next.js 16** (App Router), **React 19**
 - **TypeScript**
 - **Tailwind CSS**, **Radix UI** (shadcn/ui-style components)
-- **In-memory store** — data lives in server memory; resets on restart. Swap in a DB when you’re ready.
+- **Convex** — backend: real-time DB, queries, and mutations for requests, projects, and tickets.
+- **Clerk** — authentication (sign-in, sign-up, user session). Optional: app works without signing in; use the header to sign in when you want.
 
 ---
 
 ## Getting started
 
-```bash
-# Install dependencies (pnpm or npm)
-pnpm install
+1. **Install and run Convex** (one-time):
 
-# Run the dev server
-pnpm dev
-```
+   ```bash
+   npx convex dev
+   ```
 
-Open [http://localhost:3000](http://localhost:3000). You’ll see the Intake dashboard, with nav to **Intake**, **Projects**, and **New Request**.
+   Log in or create a Convex account; this creates a project and generates `convex/_generated`.
+
+2. **Set up Clerk** (optional but recommended):
+
+   - Create an app at [dashboard.clerk.com](https://dashboard.clerk.com).
+   - Add a JWT template named **convex** and copy the Issuer URL.
+   - In the Convex dashboard, set the env var `CLERK_JWT_ISSUER_DOMAIN` to that issuer (e.g. `https://xxx.clerk.accounts.dev`).
+
+3. **Environment variables**
+
+   Copy `env.example` to `.env.local` and fill in:
+
+   - `NEXT_PUBLIC_CONVEX_URL` — from the Convex dashboard (or `npx convex dev` output).
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` — from the Clerk dashboard.
+   - `CLERK_JWT_ISSUER_DOMAIN` — from the Clerk JWT template (for Convex auth).
+
+4. **Run the app**
+
+   ```bash
+   pnpm install
+   pnpm dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000). You’ll see the Intake dashboard, with nav to **Intake**, **Projects**, and **New Request**. Use **Sign in** in the header when Clerk is configured.
 
 **Quick runthrough:** Submit a request at `/submit` → open it from the dashboard → triage (e.g. Accept) → “Add to Project” to create a ticket → open the project to use the board and tickets.
+
+---
+
+## Deploy with Vercel
+
+1. **Push your code** to GitHub/GitLab/Bitbucket (Vercel will deploy from the repo).
+
+2. **Convex production** (so the live app uses production Convex):
+   ```bash
+   npx convex deploy
+   ```
+   Use the **production** Convex URL and dashboard for the deployed app. In the Convex dashboard for that deployment, set `CLERK_JWT_ISSUER_DOMAIN` to your Clerk JWT issuer (same as dev if using one Clerk app).
+
+3. **Connect the repo to Vercel**
+   - Go to [vercel.com](https://vercel.com) and sign in.
+   - **Add New Project** → import your repo.
+   - Vercel will detect Next.js; leave build settings as default.
+
+4. **Environment variables** (in Vercel: Project → Settings → Environment Variables). Add:
+   - `NEXT_PUBLIC_CONVEX_URL` — your **production** Convex URL (from `npx convex deploy` or Convex dashboard).
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` — from Clerk (use production keys for production).
+   - `CLERK_SECRET_KEY` — from Clerk (production).
+   - Do **not** add `CLERK_JWT_ISSUER_DOMAIN` to Vercel; that stays in the Convex dashboard for the production deployment.
+
+5. **Clerk** (optional): In the Clerk dashboard, add your Vercel URL (e.g. `https://your-app.vercel.app`) to **Allowed redirect URLs** for sign-in/sign-up.
+
+6. Deploy: Vercel builds and deploys on every push to the main branch. For a one-off deploy from the CLI instead of connecting a repo, run `vercel login`, then `npx vercel --prod` from the project root.
 
 ---
 

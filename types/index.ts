@@ -49,8 +49,8 @@ export interface Requirement {
 export interface Ticket {
   id: string;
   projectId: string;
-  /** The original intake request this ticket came from */
-  intakeRequestId: string;
+  /** Set when created from an accepted intake request; missing for ad-hoc board tickets */
+  intakeRequestId?: string;
   title: string;
   businessContext: string;
   impactArea: ImpactArea;

@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
-import { getAllRequests } from "@/lib/store";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { AppHeader } from "@/components/AppHeader/AppHeader";
 import { RequestTable } from "@/components/RequestTable/RequestTable";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
@@ -18,7 +21,7 @@ interface Props {}
 const DashboardPage: React.FC<Props> = (props) => {
   const {} = props;
 
-  const requests = getAllRequests();
+  const requests = useQuery(api.requests.list) ?? [];
 
   const counts = statuses.reduce(
     (acc, s) => {
@@ -41,7 +44,6 @@ const DashboardPage: React.FC<Props> = (props) => {
           </p>
         </div>
 
-        {/* Status summary */}
         <div className="mt-6 flex flex-wrap items-center gap-3">
           {statuses.map((s) => (
             <div key={s} className="flex items-center gap-1.5">
@@ -53,7 +55,6 @@ const DashboardPage: React.FC<Props> = (props) => {
           ))}
         </div>
 
-        {/* Request list */}
         <div className="mt-6">
           <RequestTable requests={requests} />
         </div>

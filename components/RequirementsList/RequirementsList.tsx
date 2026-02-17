@@ -1,25 +1,26 @@
 "use client";
 
 import React, { useRef } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import type { Requirement } from "@/types";
-import {
-  addRequirementAction,
-  toggleRequirementAction,
-  removeRequirementAction,
-} from "@/lib/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ListChecks, Plus, X } from "lucide-react";
 
 interface Props {
-  ticketId: string;
-  projectId: string;
+  ticketId: Id<"tickets">;
+  projectId: Id<"projects">;
   requirements: Requirement[];
 }
 
 const RequirementsList: React.FC<Props> = (props) => {
   const { ticketId, projectId, requirements } = props;
+  const addRequirement = useMutation(api.tickets.addRequirement);
+  const toggleRequirement = useMutation(api.tickets.toggleRequirement);
+  const removeRequirement = useMutation(api.tickets.removeRequirement);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -30,16 +31,16 @@ const RequirementsList: React.FC<Props> = (props) => {
   async function handleAdd(formData: FormData) {
     const text = formData.get("text") as string;
     if (!text?.trim()) return;
-    await addRequirementAction(ticketId, text, projectId);
+    await addRequirement({ ticketId, text: text.trim() });
     if (inputRef.current) inputRef.current.value = "";
   }
 
   async function handleToggle(requirementId: string) {
-    await toggleRequirementAction(ticketId, requirementId, projectId);
+    await toggleRequirement({ ticketId, requirementId });
   }
 
   async function handleRemove(requirementId: string) {
-    await removeRequirementAction(ticketId, requirementId, projectId);
+    await removeRequirement({ ticketId, requirementId });
   }
 
   return (

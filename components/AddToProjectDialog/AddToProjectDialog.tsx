@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState, useActionState } from "react";
-import { addToProjectAction } from "@/lib/actions";
-import type { Project } from "@/types";
+import React, { useState } from "react";
+import { useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,29 +25,72 @@ import {
 } from "@/components/ui/select";
 import { FolderPlus } from "lucide-react";
 
+type ProjectShape = {
+  id: Id<"projects">;
+  name: string;
+  description?: string;
+  archived: boolean;
+  createdAt: string;
+};
+
 interface Props {
-  intakeRequestId: string;
-  projects: Project[];
+  intakeRequestId: Id<"intakeRequests">;
+  request: {
+    title: string;
+    businessContext: string;
+    impactArea: string;
+    urgency: string;
+  };
+  projects: ProjectShape[];
 }
 
 const AddToProjectDialog: React.FC<Props> = (props) => {
-  const { intakeRequestId, projects } = props;
+  const { intakeRequestId, request, projects } = props;
+  const router = useRouter();
+  const createProject = useMutation(api.projects.create);
+  const createTicket = useMutation(api.tickets.createFromRequest);
 
   const [mode, setMode] = useState<"existing" | "new">(
     projects.length > 0 ? "existing" : "new",
   );
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+  const [newProjectName, setNewProjectName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
-  const [error, formAction, isPending] = useActionState(
-    async (_prev: string | null, formData: FormData) => {
-      try {
-        await addToProjectAction(formData);
-        return null;
-      } catch (e) {
-        return e instanceof Error ? e.message : "Something went wrong";
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setIsPending(true);
+    try {
+      let projectId: Id<"projects">;
+      if (mode === "existing" && selectedProjectId) {
+        projectId = selectedProjectId as Id<"projects">;
+      } else if (mode === "new" && newProjectName.trim()) {
+        const p = await createProject({
+          name: newProjectName.trim(),
+        });
+        projectId = p.id;
+      } else {
+        setError("Please select or create a project.");
+        setIsPending(false);
+        return;
       }
-    },
-    null,
-  );
+      await createTicket({
+        projectId,
+        intakeRequestId,
+        title: request.title,
+        businessContext: request.businessContext,
+        impactArea: request.impactArea as "product" | "engineering" | "operations" | "design" | "other",
+        urgency: request.urgency as "low" | "medium" | "high" | "critical",
+      });
+      router.push(`/projects/${projectId}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
     <Dialog>
@@ -63,13 +108,7 @@ const AddToProjectDialog: React.FC<Props> = (props) => {
           </DialogDescription>
         </DialogHeader>
 
-        <form action={formAction} className="flex flex-col gap-4">
-          <input
-            type="hidden"
-            name="intakeRequestId"
-            value={intakeRequestId}
-          />
-
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && (
             <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {error}
@@ -100,7 +139,12 @@ const AddToProjectDialog: React.FC<Props> = (props) => {
           {mode === "existing" && projects.length > 0 ? (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="projectId">Project</Label>
-              <Select name="projectId" required>
+              <Select
+                name="projectId"
+                value={selectedProjectId}
+                onValueChange={setSelectedProjectId}
+                required
+              >
                 <SelectTrigger id="projectId">
                   <SelectValue placeholder="Select a project" />
                 </SelectTrigger>
@@ -118,7 +162,8 @@ const AddToProjectDialog: React.FC<Props> = (props) => {
               <Label htmlFor="newProjectName">New Project Name</Label>
               <Input
                 id="newProjectName"
-                name="newProjectName"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
                 placeholder="e.g. Q1 Security Sprint"
                 required
               />

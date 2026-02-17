@@ -18,10 +18,12 @@ interface Props {
   tickets: Ticket[];
   onDrop: (ticketId: string, column: BoardColumnType) => void;
   onDragStart: (ticketId: string) => void;
+  /** Rendered at the bottom of the column (e.g. "Add ticket" for backlog) */
+  addSlot?: React.ReactNode;
 }
 
 const BoardColumnComponent: React.FC<Props> = (props) => {
-  const { columnKey, label, tickets, onDrop, onDragStart } = props;
+  const { columnKey, label, tickets, onDrop, onDragStart, addSlot } = props;
 
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -66,6 +68,7 @@ const BoardColumnComponent: React.FC<Props> = (props) => {
             onDragStart={onDragStart}
           />
         ))}
+        {addSlot}
       </div>
     </div>
   );

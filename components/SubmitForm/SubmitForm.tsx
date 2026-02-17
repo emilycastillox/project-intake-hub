@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useActionState } from "react";
-import { submitRequest } from "@/lib/actions";
+import React, { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import { useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,27 +18,67 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 
+function getDisplayName(user: { firstName?: string | null; lastName?: string | null; fullName?: string | null }): string {
+  if (user.fullName?.trim()) return user.fullName.trim();
+  const first = user.firstName?.trim() ?? "";
+  const last = user.lastName?.trim() ?? "";
+  return [first, last].filter(Boolean).join(" ");
+}
+
 interface Props {}
 
 const SubmitForm: React.FC<Props> = (props) => {
   const {} = props;
+  const router = useRouter();
+  const { user } = useUser();
+  const createRequest = useMutation(api.requests.create);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const [requesterName, setRequesterName] = useState("");
 
-  const [error, action, isPending] = useActionState(
-    async (_prev: string | null, formData: FormData) => {
-      try {
-        await submitRequest(formData);
-        return null;
-      } catch {
-        return "All fields are required. Please fill in every field.";
-      }
-    },
-    null,
-  );
+  useEffect(() => {
+    if (user) {
+      const name = getDisplayName(user);
+      if (name) setRequesterName(name);
+    }
+  }, [user]);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setIsPending(true);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const title = formData.get("title") as string;
+    const businessContext = formData.get("businessContext") as string;
+    const impactArea = formData.get("impactArea") as string;
+    const urgency = formData.get("urgency") as string;
+    const requesterNameValue = formData.get("requesterName") as string;
+    if (!title?.trim() || !businessContext?.trim() || !impactArea || !urgency || !requesterNameValue?.trim()) {
+      setError("All fields are required.");
+      setIsPending(false);
+      return;
+    }
+    try {
+      await createRequest({
+        title: title.trim(),
+        businessContext: businessContext.trim(),
+        impactArea: impactArea as "product" | "engineering" | "operations" | "design" | "other",
+        urgency: urgency as "low" | "medium" | "high" | "critical",
+        requesterName: requesterNameValue.trim(),
+      });
+      router.push("/");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
     <Card>
       <CardContent className="pt-6">
-        <form action={action} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {error && (
             <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {error}
@@ -48,6 +91,8 @@ const SubmitForm: React.FC<Props> = (props) => {
               id="requesterName"
               name="requesterName"
               placeholder="e.g. Sarah Chen"
+              value={requesterName}
+              onChange={(e) => setRequesterName(e.target.value)}
               required
             />
           </div>

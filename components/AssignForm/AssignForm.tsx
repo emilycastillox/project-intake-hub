@@ -1,32 +1,41 @@
 "use client";
 
-import React, { useActionState } from "react";
-import { assignTicketAction } from "@/lib/actions";
+import React, { useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User } from "lucide-react";
 
 interface Props {
-  ticketId: string;
-  projectId: string;
+  ticketId: Id<"tickets">;
+  projectId: Id<"projects">;
   currentAssignee?: string;
 }
 
 const AssignForm: React.FC<Props> = (props) => {
   const { ticketId, projectId, currentAssignee } = props;
+  const assignTicket = useMutation(api.tickets.assign);
+  const [assignee, setAssignee] = useState(currentAssignee ?? "");
+  const [isPending, setIsPending] = useState(false);
 
-  const [, formAction, isPending] = useActionState(
-    async (_prev: null, formData: FormData) => {
-      const assignee = formData.get("assignee") as string;
-      await assignTicketAction(ticketId, assignee, projectId);
-      return null;
-    },
-    null,
-  );
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setIsPending(true);
+    try {
+      await assignTicket({
+        id: ticketId,
+        assignee: assignee.trim() || undefined,
+      });
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
-    <form action={formAction} className="flex items-end gap-2">
+    <form onSubmit={handleSubmit} className="flex items-end gap-2">
       <div className="flex flex-col gap-1.5 flex-1">
         <Label htmlFor="assignee" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           Assignee
@@ -35,9 +44,9 @@ const AssignForm: React.FC<Props> = (props) => {
           <User className="h-4 w-4 text-muted-foreground shrink-0" />
           <Input
             id="assignee"
-            name="assignee"
+            value={assignee}
+            onChange={(e) => setAssignee(e.target.value)}
             placeholder="Enter a name"
-            defaultValue={currentAssignee || ""}
             className="h-8 text-sm"
           />
         </div>
